@@ -1,0 +1,85 @@
+graph TB
+    subgraph "Client Layer"
+        Browser[Web Browser]
+        Extension[Chrome Extension]
+    end
+
+    subgraph "Frontend - twenty-front"
+        React[React Application<br/>Port: 3001]
+        Apollo[Apollo Client<br/>GraphQL]
+        Recoil[Recoil State]
+    end
+
+    subgraph "Backend - twenty-server"
+        API[NestJS API Server<br/>Port: 3000]
+        GraphQL[GraphQL Yoga<br/>Schema & Resolvers]
+        REST[REST Endpoints<br/>Files, Webhooks]
+        Services[Business Services<br/>Auth, CRM, Workflow]
+        TypeORM[TypeORM<br/>Database ORM]
+    end
+
+    subgraph "Background Processing"
+        Worker[Worker Process<br/>Background Jobs]
+        BullMQ[BullMQ<br/>Job Queue Manager]
+    end
+
+    subgraph "Data Layer"
+        Postgres[(PostgreSQL<br/>Primary Database)]
+        Redis[(Redis<br/>Cache & Queue)]
+        Storage[File Storage<br/>S3 / Local]
+    end
+
+    subgraph "External Services"
+        Gmail[Gmail API<br/>Email Sync]
+        Outlook[Microsoft Graph<br/>Email & Calendar]
+        Stripe[Stripe<br/>Billing]
+        OAuth[OAuth Providers<br/>Google, Microsoft]
+        SMTP[SMTP Server<br/>Email Sending]
+    end
+
+    %% Client connections
+    Browser --> React
+    Extension --> API
+
+    %% Frontend internal
+    React --> Apollo
+    React --> Recoil
+    Apollo --> API
+
+    %% API connections
+    API --> GraphQL
+    API --> REST
+    GraphQL --> Services
+    REST --> Services
+    Services --> TypeORM
+    Services --> BullMQ
+
+    %% Worker connections
+    BullMQ --> Worker
+    Worker --> Services
+
+    %% Data layer connections
+    TypeORM --> Postgres
+    Services --> Redis
+    BullMQ --> Redis
+    Services --> Storage
+
+    %% External service connections
+    Worker --> Gmail
+    Worker --> Outlook
+    Services --> Stripe
+    Services --> OAuth
+    Services --> SMTP
+
+    %% Styling
+    classDef frontend fill:#61dafb,stroke:#333,stroke-width:2px,color:#000
+    classDef backend fill:#e0234e,stroke:#333,stroke-width:2px,color:#fff
+    classDef data fill:#336791,stroke:#333,stroke-width:2px,color:#fff
+    classDef external fill:#ffa500,stroke:#333,stroke-width:2px,color:#000
+    classDef queue fill:#d82c20,stroke:#333,stroke-width:2px,color:#fff
+
+    class React,Apollo,Recoil frontend
+    class API,GraphQL,REST,Services,TypeORM backend
+    class Postgres,Redis,Storage data
+    class Gmail,Outlook,Stripe,OAuth,SMTP external
+    class Worker,BullMQ queue
